@@ -38,7 +38,7 @@
 
 **公式：**
 
-简单线性回归的数学表达式为：\sum (y_i - (\beta_0 + \beta_1 x_i))^2
+简单线性回归的数学表达式为：$\sum (y_i - (\beta_0 + \beta_1 x_i))^2$
 
 ​	•	：因变量（目标变量）
 
@@ -488,6 +488,238 @@ K-means 的目标是最小化以下目标函数（**类内平方误差**）：
 **总结**
 
 K-means 是一种经典、高效的聚类方法，适合用作数据预处理或探索性分析工具。但在复杂场景下（如非凸形状簇或高噪声数据），需要结合其他聚类算法（如 DBSCAN、层次聚类）或对数据预处理以提高效果。
+
+---
+
+##### 2.2.2 Kernel K-means
+
+**Kernelising K-means** 是将传统的 K-means 算法扩展到非线性数据的技术，通过核函数 (kernel function) 将数据映射到一个高维的特征空间，在这个高维空间中应用 K-means 聚类，从而处理非线性分布的数据。
+
+**1. 背景：为什么需要 Kernelising K-means**
+
+普通的 K-means 算法使用欧几里得距离来测量点到簇中心的距离，因此只能找到**线性决策边界**。然而，当数据具有非线性分布（例如环形簇或其他复杂形状）时，传统的 K-means 可能无法正确分离簇。
+
+通过**核化（kernel trick）**，可以在高维空间中找到更复杂的决策边界，解决非线性问题。
+
+**2. 核方法（Kernel Trick）简介**
+
+核方法的核心思想是：
+
+​	•	**隐式映射**：通过一个核函数 ，将数据从原始空间映射到一个高维的特征空间中，而不需要显式计算映射后的特征。
+
+​	•	**核函数代替内积**：核函数  计算的是高维空间中两个点的内积，即：
+
+
+
+
+
+常见的核函数包括：
+
+​	1.	**线性核**：
+
+​	2.	**多项式核**：
+
+​	3.	**高斯核（RBF 核）**：
+
+**3. 核化 K-means 的过程**
+
+普通 K-means 的目标是最小化点到簇中心的平方距离和：
+
+
+
+其中  是第  个簇的中心。
+
+
+
+在核化 K-means 中，簇中心也在高维空间中定义为映射后的点的均值。算法的核心变化如下：
+
+
+
+**(1) 使用核函数计算距离**
+
+在高维特征空间中，点到簇中心的距离变为：
+
+
+
+其中：
+
+​	•	 是核函数计算出的两个点的相似性。
+
+​	•	 是第  个簇的点集合。
+
+​	•	 是簇中点的数量。
+
+**(2) 更新簇分配**
+
+使用核函数计算每个点与簇中心的“距离”，然后将点分配到最近的簇。
+
+**(3) 更新簇中心**
+
+更新簇中心时，只需用核函数计算高维空间中点的均值，而无需显式计算映射。
+
+**4. 优势**
+
+​	1.	**处理非线性分布**：高维空间中的 K-means 可以处理复杂形状的数据，例如环形簇、月牙形簇等。
+
+​	2.	**无需显式映射**：通过核函数避免了高维计算，降低了计算复杂度。
+
+**5. 例子：环形簇**
+
+假设我们有两个环形簇：
+
+​	•	一个内环
+
+​	•	一个外环
+
+**传统 K-means**
+
+​	•	使用欧几里得距离，内环和外环的点可能会被错误分组，因为距离度量忽略了环的几何形状。
+
+**核化 K-means**
+
+​	•	通过高斯核（RBF 核），将点映射到一个高维空间。在高维空间中，内环和外环可以被分成两个清晰的簇，因为核函数捕捉了点之间的非线性相似性。
+
+**6. 适用场景**
+
+​	•	数据分布呈现复杂形状（如环形、弯曲）的情况下。
+
+​	•	聚类需要捕捉点之间的非线性关系时。
+
+**总结**
+
+Kernelising K-means 是将 K-means 聚类扩展到非线性数据的一种方法。通过核函数，它能够捕捉数据的非线性结构，将复杂形状的簇正确地分开。
+
+---
+
+##### 2.2.3 mixture model
+
+**Mixture Models**
+
+
+
+A **mixture model** is a probabilistic model that represents the presence of **subpopulations** (clusters) within an overall population, without requiring labels for which subpopulation each data point belongs to. It is commonly used in clustering and density estimation.
+
+**Key Concepts:**
+
+​	1.	**Weighted Combination of Distributions:**
+
+​	•	A mixture model assumes that the data is generated from a mixture of several distributions, each representing a cluster.
+
+​	•	Mathematically:
+
+$p(x) = \sum_{k=1}^K \pi_k \, p_k(x \mid \theta_k)$
+
+​	•	$K$: Number of clusters (or components).
+
+​	•	$\pi_k$: Mixing coefficients $(\pi_k \geq 0, \sum_{k=1}^K \pi_k = 1)$.
+
+​	•	$p_k(x \mid \theta_k)$: The probability density function (PDF) of the $k$-th cluster with parameters $ \theta_k$.
+
+​	2.	**Hidden Variables:**
+
+​	•	Each data point $x$ is assumed to come from one of the $K$ clusters, but the cluster assignment is not known (hence the “mixture”).
+
+​	•	These hidden variables represent the probabilities of a data point belonging to each cluster.
+
+​	3.	**Common Types of Mixture Models:**
+
+​	•	**Gaussian Mixture Model (GMM):** Uses Gaussian distributions for each cluster.
+
+​	•	Other distributions, such as Bernoulli, Poisson, or Exponential, can also be used depending on the data.
+
+**Gaussian Mixture Model (GMM):**
+
+The most widely used mixture model, where each cluster is represented by a Gaussian (normal) distribution.
+
+**Gaussian Distribution**
+
+The **Gaussian distribution**, also known as the **normal distribution**, is a bell-shaped probability distribution. It is the most commonly used distribution in statistics because many natural phenomena approximate it.
+
+**Key Properties:**
+
+​	1.	**Probability Density Function (PDF):**
+
+The Gaussian distribution for a random variable  is given by:
+
+$p(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \, \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)$
+
+​	•	$\mu$: Mean (center of the distribution).
+
+​	•	$\sigma^2$: Variance (spread of the distribution).
+
+​	•	$\sigma = \sqrt{\sigma^2}$: Standard deviation.
+
+​	2.	**Shape:**
+
+​	•	Bell-shaped curve symmetric around the mean $\mu$.
+
+​	•	Most data falls within  $3\sigma$ (standard deviations) of the mean.
+
+​	3.	**Parameters:**
+
+​	•	$\mu$: Controls the location of the peak.
+
+​	•	$\sigma^2$: Controls the width of the curve.
+
+**In 2 Dimensions (Multivariate Gaussian):**
+
+$p(x) = \frac{1}{(2\pi)^{d/2} |\Sigma|^{1/2}} \, \exp\left(-\frac{1}{2} (x - \mu)^T \Sigma^{-1} (x - \mu)\right)$
+
+For multivariate data , the Gaussian distribution becomes:
+
+
+
+​	•	$\mu$: Mean vector ($d$-dimensional center of the distribution).
+
+​	•	$\Sigma$: Covariance matrix ($d \times d$), describing the spread and orientation of the distribution.
+
+
+
+**How Mixture Models and Gaussian Distribution Work Together**
+
+
+
+​	1.	**Gaussian Mixture Model (GMM):**
+
+​	•	Assumes that the data is generated from a mixture of multiple Gaussian distributions.
+
+​	•	Each Gaussian distribution represents one cluster.
+
+​	•	The overall density is:
+
+$p(x) = \sum_{k=1}^K \pi_k \, \mathcal{N}(x \mid \mu_k, \Sigma_k)$
+
+​	•	$\mathcal{N}(x \mid \mu_k, \Sigma_k)$: Gaussian PDF for cluster $k$.
+
+​	•	$\pi_k$: Mixing coefficient for cluster $k$.
+
+​	2.	**Clustering with GMM:**
+
+​	•	GMM assigns probabilities to data points belonging to each cluster, unlike K-means, which assigns hard labels.
+
+​	•	Uses the **Expectation-Maximization (EM)** algorithm to estimate the parameters ($\pi_k, \mu_k, $ and $\Sigma_k$).
+
+**Advantages of GMM Over K-means**
+
+​	1.	**Soft Clustering:**
+
+​	•	GMM provides probabilities of cluster membership for each data point, while K-means assigns each point to a single cluster.
+
+​	2.	**Non-Spherical Clusters:**
+
+​	•	GMM can model clusters with different shapes (elliptical, spherical, etc.) using the covariance matrix, whereas K-means assumes spherical clusters.
+
+​	3.	**Handles Overlapping Clusters:**
+
+​	•	Since GMM uses probabilities, it works well for datasets with overlapping clusters.
+
+**Summary**
+
+​	•	**Mixture models** represent data as a mixture of distributions, commonly Gaussian distributions in the case of GMM.
+
+​	•	**Gaussian distribution** is a bell-shaped distribution defined by mean and variance.
+
+​	•	GMM is a powerful clustering tool, especially for overlapping and non-spherical clusters, using a probabilistic framework and soft assignments.
 
 ---
 
